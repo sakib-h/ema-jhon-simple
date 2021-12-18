@@ -1,0 +1,69 @@
+.googleButton {
+    margin: 10px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    border: 1px solid lightgrey;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.facebookButton {
+    margin: 20px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    background-color: #485992;
+    border: 1px solid lightgrey;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.icon {
+    width: 10%;
+    padding: 10px;
+}
+h3 {
+    font-family: roboto;
+    font-size: 15px;
+    font-weight: 500;
+    margin: 0;
+    padding: 10px;
+    text-align: center;
+}
+.loginAddress {
+    margin: auto;
+    margin-top: 100px;
+    text-align: center;
+}
+input {
+    display: block;
+    margin-bottom: 20px;
+    font-size: 14px;
+    padding: 5px 15px;
+    border-radius: 5px;
+    border: 1px solid lightgrey;
+}
+input:focus {
+    outline: none;
+}
+.button {
+    background-color: #ff9800;
+    color: #221f1f;
+    font-weight: 700;
+    cursor: pointer;
+    margin: auto;
+    margin-bottom: 10px;
+}
+.forgetPass {
+    font-size: 16px;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+.userLogin {
+    display: flex;
+    justify-content: space-between;
+}
+.userLogin h3 {
+    text-align: left !important;
+}
