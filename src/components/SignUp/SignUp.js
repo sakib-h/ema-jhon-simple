@@ -20,10 +20,10 @@ const SignUp = () => {
         name: "",
         email: "",
         password: "",
-        error: "",
-        mailValidator: "",
-        mailConfirmation: "",
-        passwordConfirmation: "",
+        mailValidationMessage: "",
+        mailConfirmationMessage: "",
+        passwordValidationMessage: "",
+        passwordConfirmationMessage: "",
     });
     // ---> Google Sign In <---
     const googleProvider = new GoogleAuthProvider();
@@ -36,7 +36,7 @@ const SignUp = () => {
                     name: displayName,
                     email: email,
                 };
-                // setUser(loggedInUser);
+                setUser(loggedInUser);
             })
             .catch((err) => {
                 console.log(err.message);
@@ -53,7 +53,7 @@ const SignUp = () => {
                     name: displayName,
                     email: email,
                 };
-                // setUser(loggedInUser);
+                setUser(loggedInUser);
             })
             .catch((err) => {
                 console.log(err.message);
@@ -61,7 +61,11 @@ const SignUp = () => {
     };
 
     let validEmail = true;
+    let confirmEmailAddress = true;
     let validPassword = true;
+    let confirmPassword = true;
+    let emailAddress;
+    let userPassword;
     let validationError;
 
     const dataHandler = (event) => {
@@ -70,41 +74,53 @@ const SignUp = () => {
             validEmail = /\S+@\S+\.\S+/.test(event.target.value);
             if (validEmail === false) {
                 validationError = "Please Enter a Valid Email Address";
+            } else {
+                emailAddress = event.target.value;
             }
             const mailValidation = { ...user };
-            mailValidation.mailConfirmation = validationError;
+            mailValidation.mailValidationMessage = validationError;
+            mailValidation.email = emailAddress;
             setUser(mailValidation);
         }
-        // ---> Valid Password <---
+        // ---> Confirm Email <---
+        if (event.target.id === "confirmEmail") {
+            confirmEmailAddress = user.email === event.target.value;
+            if (confirmEmailAddress === false) {
+                validationError = "Email address does not Match";
+            }
+            const mailValidation = { ...user };
+            mailValidation.mailConfirmationMessage = validationError;
+            setUser(mailValidation);
+        }
+
         if (event.target.id === "password") {
+            // ---> Valid Password <---
             validPassword =
                 /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/.test(
                     event.target.value
                 );
             if (validPassword === false) {
                 validationError = "Please Enter a valid password";
+            } else {
+                userPassword = event.target.value;
             }
             const passwordValidation = { ...user };
-            passwordValidation.passwordConfirmation = validationError;
+            passwordValidation.passwordValidationMessage = validationError;
+            passwordValidation.password = userPassword;
             setUser(passwordValidation);
+            // ---> Confirm Password <---
+          
         }
-
-        // ---> Confirm Email <---
-        //   let confirmEmailAddress;
-        //   let confirmationMessage;
-        // const handleConfirmMail = (event) => {
-        //     let confirmMailValue = false;
-        //     const confirmMailAddress =
-        //         event.target.id === "confirmEmail" && event.target.value;
-        //     confirmMailValue = user.email === confirmMailAddress;
-        //     if (confirmMailValue != true) {
-        //         confirmMailValue = "Email Does not Match";
-        //     }
-        //     const handleMailConfirmation = {
-        //         mailConfirmation: confirmMailValue,
-        //     };
-        //     setUser(handleMailConfirmation);
-        // };
+          if (event.target.id === "confirmPassword") {
+              confirmPassword = user.password === event.target.value;
+              if (confirmPassword === false) {
+                  validationError = "Password does not Match";
+              }
+              console.log(validationError);
+              const passwordValidation = { ...user };
+              passwordValidation.passwordConfirmationMessage = validationError;
+              setUser(passwordValidation);
+          }
 
         const signUpHandler = () => {
             createUserWithEmailAndPassword(auth, user.email, user.password)
@@ -148,17 +164,17 @@ const SignUp = () => {
                         placeholder="Enter your Email Address"
                         required
                     />
-                    <h6> {user.mailConfirmation}</h6>
-                    {/* <input
+                    <h6> {user.mailValidationMessage}</h6>
+                    <input
                         type="email"
                         name="confirmEmail"
                         id="confirmEmail"
-                        onBlur={dataHandler}
+                        onChange={dataHandler}
                         className="formInput col-md-12"
                         placeholder="Confirm your Email Address"
                         required
                     />
-                    <h6> {user.mailConfirmation}</h6> */}
+                    <h6> {user.mailConfirmationMessage}</h6>
                     <input
                         type="password"
                         name="password"
@@ -168,16 +184,17 @@ const SignUp = () => {
                         placeholder="Enter your Password"
                         required
                     />
-                    <h6> {user.passwordConfirmation}</h6>
-                    {/* <input
+                    <h6> {user.passwordValidationMessage}</h6>
+                    <input
                         type="password"
                         name="confirmPassword"
                         id="confirmPassword"
-                        onBlur={dataHandler}
+                        onChange={dataHandler}
                         className="formInput col-md-12"
                         placeholder="Confirm your Password"
                         required
-                    /> */}
+                    />
+                    <h6> {user.passwordConfirmationMessage}</h6>
                     <input
                         type="button"
                         name="button"
@@ -186,7 +203,7 @@ const SignUp = () => {
                         value="Create a New Account"
                     />
                 </form>
-                <h3>OR</h3>
+                <h3 className="or">OR</h3>
             </div>
             <div className="googleButton col-md-3" onClick={googleLogInHandler}>
                 <img src={googleIcon} className="icon " alt="google logo" />
