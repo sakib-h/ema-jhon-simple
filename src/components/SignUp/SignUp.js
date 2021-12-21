@@ -8,9 +8,10 @@ import {
     getAuth,
     signInWithPopup,
     FacebookAuthProvider,
-    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
 } from "firebase/auth";
 import "./SignUp.css";
+
 const SignUp = () => {
     const firebaseApp = initializeApp(firebaseConfig);
     const auth = getAuth();
@@ -18,6 +19,11 @@ const SignUp = () => {
         isSignedIn: false,
         name: "",
         email: "",
+        password: "",
+        error: "",
+        mailValidator: "",
+        mailConfirmation: "",
+        passwordConfirmation: "",
     });
     // ---> Google Sign In <---
     const googleProvider = new GoogleAuthProvider();
@@ -30,7 +36,7 @@ const SignUp = () => {
                     name: displayName,
                     email: email,
                 };
-                setUser(loggedInUser);
+                // setUser(loggedInUser);
             })
             .catch((err) => {
                 console.log(err.message);
@@ -47,11 +53,66 @@ const SignUp = () => {
                     name: displayName,
                     email: email,
                 };
-                setUser(loggedInUser);
+                // setUser(loggedInUser);
             })
             .catch((err) => {
                 console.log(err.message);
             });
+    };
+
+    let validEmail = true;
+    let validPassword = true;
+    let validationError;
+
+    const dataHandler = (event) => {
+        // ---> Valid Email <---
+        if (event.target.id === "email") {
+            validEmail = /\S+@\S+\.\S+/.test(event.target.value);
+            if (validEmail === false) {
+                validationError = "Please Enter a Valid Email Address";
+            }
+            const mailValidation = { ...user };
+            mailValidation.mailConfirmation = validationError;
+            setUser(mailValidation);
+        }
+        // ---> Valid Password <---
+        if (event.target.id === "password") {
+            validPassword =
+                /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/.test(
+                    event.target.value
+                );
+            if (validPassword === false) {
+                validationError = "Please Enter a valid password";
+            }
+            const passwordValidation = { ...user };
+            passwordValidation.passwordConfirmation = validationError;
+            setUser(passwordValidation);
+        }
+
+        // ---> Confirm Email <---
+        //   let confirmEmailAddress;
+        //   let confirmationMessage;
+        // const handleConfirmMail = (event) => {
+        //     let confirmMailValue = false;
+        //     const confirmMailAddress =
+        //         event.target.id === "confirmEmail" && event.target.value;
+        //     confirmMailValue = user.email === confirmMailAddress;
+        //     if (confirmMailValue != true) {
+        //         confirmMailValue = "Email Does not Match";
+        //     }
+        //     const handleMailConfirmation = {
+        //         mailConfirmation: confirmMailValue,
+        //     };
+        //     setUser(handleMailConfirmation);
+        // };
+
+        const signUpHandler = () => {
+            createUserWithEmailAndPassword(auth, user.email, user.password)
+                .then((res) => {
+                    console.log(res);
+                })
+                .catch((err) => console.log(err.message));
+        };
     };
     return (
         <div>
@@ -64,6 +125,7 @@ const SignUp = () => {
                         type="text"
                         name="firstName"
                         id="firstName"
+                        onBlur={dataHandler}
                         className="formInput col-md-12"
                         placeholder="First Name"
                         required
@@ -72,6 +134,7 @@ const SignUp = () => {
                         type="text"
                         name="lastName"
                         id="lastName"
+                        onBlur={dataHandler}
                         className="formInput col-md-12"
                         placeholder="Last Name"
                         required
@@ -80,34 +143,41 @@ const SignUp = () => {
                         type="email"
                         name="email"
                         id="email"
+                        onChange={dataHandler}
                         className="formInput col-md-12"
                         placeholder="Enter your Email Address"
                         required
                     />
-                    <input
+                    <h6> {user.mailConfirmation}</h6>
+                    {/* <input
                         type="email"
                         name="confirmEmail"
                         id="confirmEmail"
+                        onBlur={dataHandler}
                         className="formInput col-md-12"
                         placeholder="Confirm your Email Address"
                         required
                     />
+                    <h6> {user.mailConfirmation}</h6> */}
                     <input
                         type="password"
                         name="password"
                         id="password"
+                        onChange={dataHandler}
                         className="formInput col-md-12"
                         placeholder="Enter your Password"
                         required
                     />
-                    <input
+                    <h6> {user.passwordConfirmation}</h6>
+                    {/* <input
                         type="password"
                         name="confirmPassword"
                         id="confirmPassword"
+                        onBlur={dataHandler}
                         className="formInput col-md-12"
                         placeholder="Confirm your Password"
                         required
-                    />
+                    /> */}
                     <input
                         type="button"
                         name="button"

@@ -1,4 +1,5 @@
 import React, { useState, createContext } from "react";
+import { Link } from "react-router-dom";
 import "./Login.css";
 import { initializeApp } from "firebase/app";
 import firebaseConfig from "../FirebaseConfig/Firebase.Config";
@@ -13,6 +14,7 @@ import googleIcon from "./icon/google_icon.png";
 import facebookIcon from "./icon/facebook_icon.png";
 import UserInfo from "../UserAccount/UserInfo";
 export const UserContext = createContext();
+
 const Login = () => {
     const firebaseApp = initializeApp(firebaseConfig);
     const auth = getAuth();
@@ -20,6 +22,7 @@ const Login = () => {
         isSignedIn: false,
         name: "",
         email: "",
+        password: "",
     });
     // ---> Email Sign In <---
 
@@ -69,77 +72,80 @@ const Login = () => {
 
     return (
         <div>
-            {user.isSignedIn ? (
-                <div className="loggedInPage">
-                    {/* <h2>Hello, {user.name}</h2> */}
-                    <UserContext.Provider value={[user, setUser]}>
+            <UserContext.Provider value={[user, setUser]}>
+                {user.isSignedIn ? (
+                    <div className="loggedInPage">
+                        {/* <h2>Hello, {user.name}</h2> */}
                         <UserInfo></UserInfo>
-                    </UserContext.Provider>
-                </div>
-            ) : (
-                <div className="logInPage">
-                    <div className="loginAddress col-md-3">
-                        <form action="">
-                            <div className="userLogin ">
-                                <h3>User Login</h3>
-                                <h3>
-                                    Not a User? <a href="/signup"> Sign Up</a>
-                                </h3>
-                            </div>
-                            <input
-                                type="email"
-                                name="email"
-                                id="email"
-                                className="formInput col-md-12"
-                                placeholder="Enter your Email Address"
-                                required
-                            />
-                            <input
-                                type="password"
-                                name="password"
-                                id="password"
-                                className="formInput col-md-12"
-                                placeholder="Enter your Password"
-                                required
-                            />
-                            <a href="#" className="forgetPass">
-                                Forget your Password?
-                            </a>
-                            <input
-                                type="button"
-                                name="button"
-                                className="button"
-                                // onClick={emailLogInHandler}
-                                id="button"
-                                value="Log In"
-                            />
-                        </form>
-                        <h3>OR</h3>
                     </div>
-                    <div
-                        className="googleButton col-md-3"
-                        onClick={googleLogInHandler}
-                    >
-                        <img
-                            src={googleIcon}
-                            className="icon "
-                            alt="google logo"
-                        />
-                        <h3>Log In With Google</h3>
+                ) : (
+                    <div className="logInPage">
+                        <div className="loginAddress col-md-3">
+                            <form action="">
+                                <div className="userLogin ">
+                                    <h3>User Login</h3>
+                                    <h3>
+                                        Not a User?
+                                        <Link to="/signup"> Sign Up</Link>
+                                    </h3>
+                                </div>
+                                <div>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        id="email"
+                                        className="formInput col-md-12"
+                                        placeholder="Enter your Email Address"
+                                        required
+                                    />
+                                    <input
+                                        type="password"
+                                        name="password"
+                                        id="password"
+                                        className="formInput col-md-12"
+                                        placeholder="Enter your Password"
+                                        required
+                                    />
+                                    <a href="#" className="forgetPass">
+                                        Forget your Password?
+                                    </a>
+                                    <input
+                                        type="button"
+                                        name="button"
+                                        className="button"
+                                        // onClick={emailLogInHandler}
+                                        id="button"
+                                        value="Log In"
+                                    />
+                                </div>
+                            </form>
+                            <h3>OR</h3>
+                        </div>
+                        <div
+                            className="googleButton col-md-3"
+                            onClick={googleLogInHandler}
+                        >
+                            <img
+                                src={googleIcon}
+                                className="icon "
+                                alt="google logo"
+                            />
+                            <h3>Log In With Google</h3>
+                        </div>
+                        <div
+                            className="facebookButton col-md-3"
+                            onClick={facebookLogInHandler}
+                        >
+                            <img
+                                src={facebookIcon}
+                                className="icon "
+                                alt="google logo"
+                            />
+                            <h3>Log In With Facebook</h3>
+                        </div>
                     </div>
-                    <div
-                        className="facebookButton col-md-3"
-                        onClick={facebookLogInHandler}
-                    >
-                        <img
-                            src={facebookIcon}
-                            className="icon "
-                            alt="google logo"
-                        />
-                        <h3>Log In With Facebook</h3>
-                    </div>
-                </div>
-            )}
+                )}
+            </UserContext.Provider>
         </div>
     );
 };
