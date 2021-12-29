@@ -1,23 +1,23 @@
 import React, { useContext } from "react";
-import { UserContext } from "../Login/Login";
+import { Navigate } from "react-router-dom";
+import { LogInContext } from "../../App";
 import "./UserInfo.css";
 
 const UserInfo = (event) => {
-    const [user, setUser] = useContext(UserContext);
-    const { name, email, isSignedIn } = user;
-    const handleSignOut = () => {
-        const user = {
-            isSignedIn: false,
-            name: "",
-            email: "",
-        };
-        setUser(user);
-    };
+    const [loggedInUser, setLoggedInUser] = useContext(LogInContext);
+    const { name, email, isSignedIn } = loggedInUser;
+
 
     return (
-        <div className="userInfo">
-            <h2>Hello, {name}</h2>
-            <button onClick={handleSignOut}>Sign Out</button>
+        <div>
+            {isSignedIn ? (
+                <div className="userInfo">
+                    <h2>Hello, {name}</h2>
+                    <h3>Your Email address is, {email}</h3>
+                </div>
+            ) : (
+                <Navigate to="/" />
+            )}
         </div>
     );
 };

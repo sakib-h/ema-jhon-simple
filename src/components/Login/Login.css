@@ -47,7 +47,7 @@ input {
 input:focus {
     outline: none;
 }
-.button {
+.submit {
     background-color: #ff9800;
     color: #221f1f;
     font-weight: 700;
@@ -64,6 +64,7 @@ input:focus {
     display: flex;
     justify-content: space-between;
 }
-/* .userLogin h3 {
-    text-align: left !important;
-} */
+
+.or {
+    margin-top: -10px;
+}

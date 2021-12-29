@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
     getDatabaseCart,
     processOrder,
@@ -10,11 +10,13 @@ import Cart from "../Cart/Cart";
 import "./Review.css";
 import happyImage from "../../images/giphy.gif";
 import { useNavigate } from "react-router-dom";
+import { LogInContext } from "../../App";
 
 const Review = () => {
     const [cart, setCart] = useState([]);
     const [orderPlaced, setOrderPlaced] = useState(false);
     const navigate = useNavigate();
+    const [loggedInUser, setLoggedInUser] = useContext(LogInContext);
     const handleCheckout = () => {
         navigate("/shipment");
     };

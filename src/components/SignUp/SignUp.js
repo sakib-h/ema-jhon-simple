@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import facebookIcon from "../Login/icon/facebook_icon.png";
 import googleIcon from "../Login/icon/google_icon.png";
 import { initializeApp } from "firebase/app";
@@ -9,6 +10,7 @@ import {
     signInWithPopup,
     FacebookAuthProvider,
     createUserWithEmailAndPassword,
+    updateProfile,
 } from "firebase/auth";
 import "./SignUp.css";
 
@@ -17,9 +19,15 @@ const SignUp = () => {
     const auth = getAuth();
     const [user, setUser] = useState({
         isSignedIn: false,
-        name: "",
+        firstName: "",
+        lastName: "",
+        displayName: "",
         email: "",
+        confirmEmail: "",
         password: "",
+        confirmPassword: "",
+        photo: "",
+        err: "",
         mailValidationMessage: "",
         mailConfirmationMessage: "",
         passwordValidationMessage: "",
@@ -60,19 +68,35 @@ const SignUp = () => {
             });
     };
 
-    let validEmail = true;
+    let formValid = true;
     let confirmEmailAddress = true;
-    let validPassword = true;
     let confirmPassword = true;
+    let confirmEmailAddressValue;
+    let confirmPasswordValue;
     let emailAddress;
     let userPassword;
     let validationError;
 
+    // ---> Data Handler <---
     const dataHandler = (event) => {
+        // name handler
+        if (event.target.id === "firstName") {
+            const firstUserName = event.target.value;
+            const userName = { ...user };
+            userName.firstName = firstUserName;
+            setUser(userName);
+        }
+        if (event.target.id === "lastName") {
+            const lastUserName = event.target.value;
+            const userName = { ...user };
+            userName.lastName = lastUserName;
+            setUser(userName);
+        }
+
         // ---> Valid Email <---
         if (event.target.id === "email") {
-            validEmail = /\S+@\S+\.\S+/.test(event.target.value);
-            if (validEmail === false) {
+            formValid = /\S+@\S+\.\S+/.test(event.target.value);
+            if (formValid === false) {
                 validationError = "Please Enter a Valid Email Address";
             } else {
                 emailAddress = event.target.value;
@@ -87,19 +111,22 @@ const SignUp = () => {
             confirmEmailAddress = user.email === event.target.value;
             if (confirmEmailAddress === false) {
                 validationError = "Email address does not Match";
+            } else {
+                confirmEmailAddressValue = event.target.value;
             }
             const mailValidation = { ...user };
             mailValidation.mailConfirmationMessage = validationError;
+            mailValidation.confirmEmail = confirmEmailAddressValue;
             setUser(mailValidation);
         }
 
+        // ---> Valid Password <---
         if (event.target.id === "password") {
-            // ---> Valid Password <---
-            validPassword =
+            formValid =
                 /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/.test(
                     event.target.value
                 );
-            if (validPassword === false) {
+            if (formValid === false) {
                 validationError = "Please Enter a valid password";
             } else {
                 userPassword = event.target.value;
@@ -108,40 +135,67 @@ const SignUp = () => {
             passwordValidation.passwordValidationMessage = validationError;
             passwordValidation.password = userPassword;
             setUser(passwordValidation);
-            // ---> Confirm Password <---
-          
         }
-          if (event.target.id === "confirmPassword") {
-              confirmPassword = user.password === event.target.value;
-              if (confirmPassword === false) {
-                  validationError = "Password does not Match";
-              }
-              console.log(validationError);
-              const passwordValidation = { ...user };
-              passwordValidation.passwordConfirmationMessage = validationError;
-              setUser(passwordValidation);
-          }
 
-        const signUpHandler = () => {
+        // ---> Confirm Password <---
+        if (event.target.id === "confirmPassword") {
+            confirmPassword = user.password === event.target.value;
+            if (confirmPassword === false) {
+                validationError = "Password does not Match";
+            } else {
+                confirmPasswordValue = event.target.value;
+            }
+            const passwordValidation = { ...user };
+            passwordValidation.passwordConfirmationMessage = validationError;
+            passwordValidation.confirmPassword = confirmPasswordValue;
+            setUser(passwordValidation);
+        }
+    };
+    // ---> Submit Handler <---
+    const handleSubmit = (event) => {
+        if (user.confirmEmail && user.confirmPassword) {
             createUserWithEmailAndPassword(auth, user.email, user.password)
                 .then((res) => {
-                    console.log(res);
+                    const signedUpUser = {
+                        isSignedIn: true,
+                    };
+                    setUser(signedUpUser);
+                    updateProfile(auth.currentUser, {
+                        displayName: user.firstName + " " + user.lastName,
+                    })
+                        .then((res) => {
+                            // console.log("Profile Updated");
+                        })
+                        .catch((error) => {
+                            // An error occurred
+                            // ...
+                        });
                 })
-                .catch((err) => console.log(err.message));
-        };
+                .catch((err) => {
+                    const errorMessage = { ...user };
+                    errorMessage.err = `Email is Already in use. Please try to login into your Account;`;
+                    setUser(errorMessage);
+                });
+        }
+        event.preventDefault();
     };
+
     return (
         <div>
             <div className="signUpAddress col-md-3">
-                <form action="">
+                <form action="" onSubmit={handleSubmit}>
                     <div className="userLogin ">
                         <h3>Sign Up for New Account</h3>
+                        <h3>
+                            Already a User?
+                            <Link to="/login"> Login</Link>
+                        </h3>
                     </div>
                     <input
                         type="text"
                         name="firstName"
                         id="firstName"
-                        onBlur={dataHandler}
+                        onChange={dataHandler}
                         className="formInput col-md-12"
                         placeholder="First Name"
                         required
@@ -150,7 +204,7 @@ const SignUp = () => {
                         type="text"
                         name="lastName"
                         id="lastName"
-                        onBlur={dataHandler}
+                        onChange={dataHandler}
                         className="formInput col-md-12"
                         placeholder="Last Name"
                         required
@@ -196,12 +250,13 @@ const SignUp = () => {
                     />
                     <h6> {user.passwordConfirmationMessage}</h6>
                     <input
-                        type="button"
-                        name="button"
-                        className="button"
-                        id="button"
+                        type="submit"
+                        name="submit"
+                        className="submit"
+                        id="submit"
                         value="Create a New Account"
                     />
+                    <h6> {user.err}</h6>
                 </form>
                 <h3 className="or">OR</h3>
             </div>
