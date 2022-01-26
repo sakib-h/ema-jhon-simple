@@ -2,7 +2,6 @@ import React from "react";
 import "./ReviewItem.css";
 
 const ReviewItem = (props) => {
-    console.log(props.product);
     const { name, quantity, key, seller, img, price } = props.product;
 
     return (

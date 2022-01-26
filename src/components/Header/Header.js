@@ -3,10 +3,8 @@ import { Link } from "react-router-dom";
 import logo from "../../images/logo.png";
 import "./Header.css";
 import { LogInContext } from "../../App";
-import Login from "../Login/Login";
 const Header = () => {
     const [loggedInUser, setLoggedInUser] = useContext(LogInContext);
-    const { name } = loggedInUser;
     const handleSignOut = () => {
         const user = {
             isSignedIn: false,
@@ -26,7 +24,7 @@ const Header = () => {
                             <Link to="/shop">Shop</Link>
                             <Link to="/review">Review</Link>
                             <Link to="/inventory">Manage Inventory</Link>
-                            <Link to="/user">{name}</Link>
+                            <Link to="/user">{loggedInUser.displayName}</Link>
                             <Link
                                 to="/"
                                 onClick={handleSignOut}

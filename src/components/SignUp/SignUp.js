@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useContext } from "react";
+import { Link, Navigate } from "react-router-dom";
 import facebookIcon from "../Login/icon/facebook_icon.png";
 import googleIcon from "../Login/icon/google_icon.png";
 import { initializeApp } from "firebase/app";
@@ -11,9 +11,10 @@ import {
     FacebookAuthProvider,
     createUserWithEmailAndPassword,
     updateProfile,
+    sendEmailVerification,
 } from "firebase/auth";
 import "./SignUp.css";
-
+import { LogInContext } from "../../App";
 const SignUp = () => {
     const firebaseApp = initializeApp(firebaseConfig);
     const auth = getAuth();
@@ -33,6 +34,7 @@ const SignUp = () => {
         passwordValidationMessage: "",
         passwordConfirmationMessage: "",
     });
+    const [loggedInUser, setLoggedInUser] = useContext(LogInContext);
     // ---> Google Sign In <---
     const googleProvider = new GoogleAuthProvider();
     const googleLogInHandler = (event) => {
@@ -41,10 +43,11 @@ const SignUp = () => {
                 const { displayName, email } = res.user;
                 const loggedInUser = {
                     isSignedIn: true,
-                    name: displayName,
+                    displayName: displayName,
                     email: email,
                 };
                 setUser(loggedInUser);
+                setLoggedInUser(loggedInUser);
             })
             .catch((err) => {
                 console.log(err.message);
@@ -58,10 +61,11 @@ const SignUp = () => {
                 const { displayName, email } = res.user;
                 const loggedInUser = {
                     isSignedIn: true,
-                    name: displayName,
+                    displayName: displayName,
                     email: email,
                 };
                 setUser(loggedInUser);
+                setLoggedInUser(loggedInUser);
             })
             .catch((err) => {
                 console.log(err.message);
@@ -151,25 +155,31 @@ const SignUp = () => {
             setUser(passwordValidation);
         }
     };
+    // ---> Verify Email <---
+    const verifyEmail = () => {
+        sendEmailVerification(auth.currentUser).then((res) => {});
+    };
     // ---> Submit Handler <---
     const handleSubmit = (event) => {
         if (user.confirmEmail && user.confirmPassword) {
             createUserWithEmailAndPassword(auth, user.email, user.password)
                 .then((res) => {
-                    const signedUpUser = {
-                        isSignedIn: true,
-                    };
+                    const signedUpUser = { ...user };
+                    signedUpUser.isSignedIn = true;
                     setUser(signedUpUser);
+                    setLoggedInUser(signedUpUser);
                     updateProfile(auth.currentUser, {
                         displayName: user.firstName + " " + user.lastName,
                     })
                         .then((res) => {
-                            // console.log("Profile Updated");
+                            // console.log(res);
                         })
                         .catch((error) => {
                             // An error occurred
                             // ...
                         });
+                    verifyEmail();
+                    console.log(res);
                 })
                 .catch((err) => {
                     const errorMessage = { ...user };
@@ -182,95 +192,115 @@ const SignUp = () => {
 
     return (
         <div>
-            <div className="signUpAddress col-md-3">
-                <form action="" onSubmit={handleSubmit}>
-                    <div className="userLogin ">
-                        <h3>Sign Up for New Account</h3>
-                        <h3>
-                            Already a User?
-                            <Link to="/login"> Login</Link>
-                        </h3>
+            {loggedInUser.isSignedIn ? (
+                <div className="loggedInPage">
+                    {/* <h2>Hello, {user.name}</h2> */}
+                    <Navigate to="/shipment" />
+                </div>
+            ) : (
+                <div className="signUpContainer">
+                    <div className="signUpAddress col-md-3">
+                        <form action="" onSubmit={handleSubmit}>
+                            <div className="userLogin ">
+                                <h3>Sign Up for New Account</h3>
+                                <h3>
+                                    Already a User?
+                                    <Link to="/login"> Login</Link>
+                                </h3>
+                            </div>
+                            <input
+                                type="text"
+                                name="firstName"
+                                id="firstName"
+                                onChange={dataHandler}
+                                className="formInput col-md-12"
+                                placeholder="First Name"
+                                required
+                            />
+                            <input
+                                type="text"
+                                name="lastName"
+                                id="lastName"
+                                onChange={dataHandler}
+                                className="formInput col-md-12"
+                                placeholder="Last Name"
+                                required
+                            />
+                            <input
+                                type="email"
+                                name="email"
+                                id="email"
+                                onChange={dataHandler}
+                                className="formInput col-md-12"
+                                placeholder="Enter your Email Address"
+                                required
+                            />
+                            <h6> {user.mailValidationMessage}</h6>
+                            <input
+                                type="email"
+                                name="confirmEmail"
+                                id="confirmEmail"
+                                onChange={dataHandler}
+                                className="formInput col-md-12"
+                                placeholder="Confirm your Email Address"
+                                required
+                            />
+                            <h6> {user.mailConfirmationMessage}</h6>
+                            <input
+                                type="password"
+                                name="password"
+                                id="password"
+                                onChange={dataHandler}
+                                className="formInput col-md-12"
+                                placeholder="Enter your Password"
+                                required
+                            />
+                            <h6> {user.passwordValidationMessage}</h6>
+                            <input
+                                type="password"
+                                name="confirmPassword"
+                                id="confirmPassword"
+                                onChange={dataHandler}
+                                className="formInput col-md-12"
+                                placeholder="Confirm your Password"
+                                required
+                            />
+                            <h6> {user.passwordConfirmationMessage}</h6>
+                            <input
+                                type="submit"
+                                name="submit"
+                                className="submit"
+                                id="submit"
+                                value="Create a New Account"
+                            />
+                            <h6> {user.err}</h6>
+                        </form>
+                        <h3 className="or">OR</h3>
                     </div>
-                    <input
-                        type="text"
-                        name="firstName"
-                        id="firstName"
-                        onChange={dataHandler}
-                        className="formInput col-md-12"
-                        placeholder="First Name"
-                        required
-                    />
-                    <input
-                        type="text"
-                        name="lastName"
-                        id="lastName"
-                        onChange={dataHandler}
-                        className="formInput col-md-12"
-                        placeholder="Last Name"
-                        required
-                    />
-                    <input
-                        type="email"
-                        name="email"
-                        id="email"
-                        onChange={dataHandler}
-                        className="formInput col-md-12"
-                        placeholder="Enter your Email Address"
-                        required
-                    />
-                    <h6> {user.mailValidationMessage}</h6>
-                    <input
-                        type="email"
-                        name="confirmEmail"
-                        id="confirmEmail"
-                        onChange={dataHandler}
-                        className="formInput col-md-12"
-                        placeholder="Confirm your Email Address"
-                        required
-                    />
-                    <h6> {user.mailConfirmationMessage}</h6>
-                    <input
-                        type="password"
-                        name="password"
-                        id="password"
-                        onChange={dataHandler}
-                        className="formInput col-md-12"
-                        placeholder="Enter your Password"
-                        required
-                    />
-                    <h6> {user.passwordValidationMessage}</h6>
-                    <input
-                        type="password"
-                        name="confirmPassword"
-                        id="confirmPassword"
-                        onChange={dataHandler}
-                        className="formInput col-md-12"
-                        placeholder="Confirm your Password"
-                        required
-                    />
-                    <h6> {user.passwordConfirmationMessage}</h6>
-                    <input
-                        type="submit"
-                        name="submit"
-                        className="submit"
-                        id="submit"
-                        value="Create a New Account"
-                    />
-                    <h6> {user.err}</h6>
-                </form>
-                <h3 className="or">OR</h3>
-            </div>
-            <div className="googleButton col-md-3" onClick={googleLogInHandler}>
-                <img src={googleIcon} className="icon " alt="google logo" />
-                <h3>Continue With Google</h3>
-            </div>
-            <div
-                className="facebookButton col-md-3"
-                onClick={facebookLogInHandler}
-            >
-                <img src={facebookIcon} className="icon " alt="google logo" />
-                <h3>Continue In With Facebook</h3>
-            </div>
+                    <div
+                        className="googleButton col-md-3"
+                        onClick={googleLogInHandler}
+                    >
+                        <img
+                            src={googleIcon}
+                            className="icon "
+                            alt="google logo"
+                        />
+                        <h3>Continue With Google</h3>
+                    </div>
+                    <div
+                        className="facebookButton col-md-3"
+                        onClick={facebookLogInHandler}
+                    >
+                        <img
+                            src={facebookIcon}
+                            className="icon "
+                            alt="google logo"
+                        />
+                        <h3>Continue In With Facebook</h3>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

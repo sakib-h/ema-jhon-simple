@@ -9,6 +9,7 @@ import {
     signInWithPopup,
     FacebookAuthProvider,
     signInWithEmailAndPassword,
+    sendPasswordResetEmail,
 } from "firebase/auth";
 import googleIcon from "./icon/google_icon.png";
 import facebookIcon from "./icon/facebook_icon.png";
@@ -21,7 +22,7 @@ const Login = () => {
     const auth = getAuth();
     const [user, setUser] = useState({
         isSignedIn: false,
-        name: "",
+        displayName: "",
         email: "",
         password: "",
         err: "",
@@ -38,10 +39,11 @@ const Login = () => {
     const emailLogInHandler = (event) => {
         signInWithEmailAndPassword(auth, user.email, user.password)
             .then((res) => {
+                console.log(res);
                 const { displayName, email } = res.user;
                 const userInfo = { ...user };
                 userInfo.isSignedIn = true;
-                userInfo.name = displayName;
+                userInfo.displayName = displayName;
                 userInfo.email = email;
                 setUser(userInfo);
                 setLoggedInUser(userInfo);
@@ -61,7 +63,7 @@ const Login = () => {
                 const { displayName, email } = res.user;
                 const loggedInUserInfo = {
                     isSignedIn: true,
-                    name: displayName,
+                    displayName: displayName,
                     email: email,
                 };
                 setUser(loggedInUserInfo);
@@ -79,7 +81,7 @@ const Login = () => {
                 const { displayName, email } = res.user;
                 const loggedInUserInfo = {
                     isSignedIn: true,
-                    name: displayName,
+                    displayName: displayName,
                     email: email,
                 };
                 setUser(loggedInUserInfo);
@@ -88,6 +90,12 @@ const Login = () => {
             .catch((err) => {
                 console.log(err.message);
             });
+    };
+    // ---> Reset Password <---
+    const resetPassword = (email) => {
+        sendPasswordResetEmail(auth, email)
+            .then((res) => {})
+            .catch((err) => console.log(err.message));
     };
     return (
         <div>
@@ -104,7 +112,10 @@ const Login = () => {
                                 <h3>User Login</h3>
                                 <h3>
                                     Not a User?
-                                    <Link to="/signup"> Sign Up</Link>
+                                    <Link to="/signup" className="signupBtn">
+                                        {" "}
+                                        Sign Up
+                                    </Link>
                                 </h3>
                             </div>
                             <div>
@@ -127,9 +138,12 @@ const Login = () => {
                                     required
                                 />
                                 <h6>{user.err}</h6>
-                                <a href="#" className="forgetPass">
+                                <h5
+                                    className="forgetPass"
+                                    onClick={() => resetPassword(user.email)}
+                                >
                                     Forget your Password?
-                                </a>
+                                </h5>
                                 <input
                                     type="submit"
                                     name="submit"
